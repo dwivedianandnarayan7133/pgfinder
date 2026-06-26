@@ -5,11 +5,11 @@
  * DELETE this file after setup is complete!
  */
 
-$host    = 'localhost';
-$user    = 'root';
-$pass    = 'Shiv@241';
-$dbName  = 'student_accommodation';
-$charset = 'utf8mb4';
+$host    = getenv('DB_HOST') ?: 'localhost';
+$user    = getenv('DB_USER') ?: 'root';
+$pass    = getenv('DB_PASS') ?: 'Shiv@241';
+$dbName  = getenv('DB_NAME') ?: 'student_accommodation';
+$charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 $log = [];
 
