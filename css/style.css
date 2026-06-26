@@ -929,11 +929,60 @@ footer {
 }
 
 @media (max-width: 767px) {
-  .hero { padding: 50px 0 40px; }
-  .hero-title { font-size: 1.9rem; }
-  .hero-stats { gap: 1.5rem; }
-  .detail-hero-img { height: 260px; }
-  .auth-card { padding: 1.8rem; }
+  .hero { padding: 40px 0 30px; }
+  .hero-title { font-size: 2rem; }
+  .hero-stats { gap: 1.2rem; flex-wrap: wrap; }
+  .detail-hero-img { height: 240px; }
+  .auth-card { padding: 1.5rem; }
+
+  /* Responsive Navbar Scroll for Mobile */
+  .navbar-custom .container {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    padding: 0 10px;
+  }
+
+  .navbar-custom .d-flex.align-items-center {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide for Firefox */
+  }
+
+  .navbar-custom .d-flex.align-items-center::-webkit-scrollbar {
+    display: none; /* Hide for Chrome, Safari, Opera */
+  }
+
+  .nav-link-custom {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.82rem;
+  }
+
+  .btn-nav-login, .btn-nav-cta {
+    padding: 0.35rem 0.75rem !important;
+    font-size: 0.8rem;
+  }
+
+  /* Responsive Search Bar for Mobile */
+  .search-bar-wrap {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: 6px;
+  }
+
+  .search-input {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.88rem;
+  }
+
+  .btn-search {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.82rem;
+  }
 }
 
 /* ── Utility ───────────────────────────────────────────────── */
