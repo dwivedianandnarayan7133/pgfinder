@@ -42,10 +42,20 @@ try {
     $pdo->exec("DROP TABLE IF EXISTS amenities;");
     $pdo->exec("DROP TABLE IF EXISTS properties;");
     $pdo->exec("DROP TABLE IF EXISTS users;");
+    $pdo->exec("DROP TABLE IF EXISTS sessions;");
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
     logMsg("🗑️ Dropped existing tables (if any) for a clean install.");
 
     // Step 5: Create tables
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS sessions (
+          id        VARCHAR(128) NOT NULL PRIMARY KEY,
+          data      TEXT NOT NULL,
+          timestamp INT NOT NULL
+        ) ENGINE=InnoDB
+    ");
+    logMsg("✅ Table 'sessions' ready.");
+
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS users (
           id         INT AUTO_INCREMENT PRIMARY KEY,

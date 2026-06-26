@@ -37,10 +37,82 @@ function getDB(): PDO {
 }
 
 /**
+ * Custom Session Save Handler to store session data in MySQL.
+ * Essential for serverless deployments (Vercel) where local files are not shared/persistent.
+ */
+class DatabaseSessionHandler implements SessionHandlerInterface {
+    private $pdo;
+
+    public function __construct(PDO $pdo) {
+        $this->pdo = $pdo;
+    }
+
+    public function open($savePath, $sessionName): bool {
+        return true;
+    }
+
+    public function close(): bool {
+        return true;
+    }
+
+    public function read($id): string {
+        try {
+            $stmt = $this->pdo->prepare("SELECT data FROM sessions WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? $row['data'] : '';
+        } catch (Exception $e) {
+            return '';
+        }
+    }
+
+    public function write($id, $data): bool {
+        try {
+            $timestamp = time();
+            $stmt = $this->pdo->prepare("REPLACE INTO sessions (id, data, timestamp) VALUES (:id, :data, :timestamp)");
+            return $stmt->execute([
+                ':id'        => $id,
+                ':data'      => $data,
+                ':timestamp' => $timestamp
+            ]);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function destroy($id): bool {
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE id = :id");
+            return $stmt->execute([':id' => $id]);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function gc($maxLifetime): int {
+        try {
+            $old = time() - $maxLifetime;
+            $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE timestamp < :old");
+            $stmt->execute([':old' => $old]);
+            return $stmt->rowCount();
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+}
+
+/**
  * Session helper — start session if not already started.
  */
 function startSession(): void {
     if (session_status() === PHP_SESSION_NONE) {
+        try {
+            $pdo = getDB();
+            $handler = new DatabaseSessionHandler($pdo);
+            session_set_save_handler($handler, true);
+        } catch (Exception $e) {
+            // Fallback to PHP's default file-based session handler if database is not ready
+        }
         session_start();
     }
 }
