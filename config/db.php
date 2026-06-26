@@ -76,6 +76,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
                 ':timestamp' => $timestamp
             ]);
         } catch (Exception $e) {
+            error_log("DatabaseSessionHandler::write error: " . $e->getMessage());
             return false;
         }
     }
@@ -114,6 +115,8 @@ function startSession(): void {
             // Fallback to PHP's default file-based session handler if database is not ready
         }
         session_start();
+        // Force session data write before PHP destroys the PDO connection object during shutdown
+        register_shutdown_function('session_write_close');
     }
 }
 
