@@ -35,7 +35,17 @@ try {
     $pdo->exec("USE `$dbName`");
     logMsg("✅ Using database '$dbName'.");
 
-    // Step 4: Create tables
+    // Step 4: Drop existing tables (if any) for a clean install
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 0;");
+    $pdo->exec("DROP TABLE IF EXISTS interested_users;");
+    $pdo->exec("DROP TABLE IF EXISTS property_amenities;");
+    $pdo->exec("DROP TABLE IF EXISTS amenities;");
+    $pdo->exec("DROP TABLE IF EXISTS properties;");
+    $pdo->exec("DROP TABLE IF EXISTS users;");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
+    logMsg("🗑️ Dropped existing tables (if any) for a clean install.");
+
+    // Step 5: Create tables
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS users (
           id         INT AUTO_INCREMENT PRIMARY KEY,
