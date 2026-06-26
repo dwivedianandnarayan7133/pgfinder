@@ -245,7 +245,14 @@ function sendRegistrationNotification(string $name, string $email, string $phone
                 . "Message: $smsText\n"
                 . "========================================================\n\n";
                 
-    file_put_contents($logFile, $logContent, FILE_APPEND);
+    // On Vercel, the filesystem is read-only, so we fallback to /tmp
+    $dir = dirname($logFile);
+    if (is_writable($dir) || (file_exists($logFile) && is_writable($logFile))) {
+        @file_put_contents($logFile, $logContent, FILE_APPEND);
+    } else {
+        $tmpLog = sys_get_temp_dir() . '/notifications_log.txt';
+        @file_put_contents($tmpLog, $logContent, FILE_APPEND);
+    }
     
     $_SESSION['just_registered'] = [
         'name' => $name,
