@@ -43,6 +43,7 @@ try {
           email      VARCHAR(150)  NOT NULL UNIQUE,
           password   VARCHAR(255)  NOT NULL,
           phone      VARCHAR(15)   DEFAULT NULL,
+          role       ENUM('student','owner','admin') NOT NULL DEFAULT 'student',
           created_at TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB
     ");
@@ -50,16 +51,21 @@ try {
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS properties (
-          id          INT AUTO_INCREMENT PRIMARY KEY,
-          name        VARCHAR(150)  NOT NULL,
-          city        VARCHAR(80)   NOT NULL,
-          address     VARCHAR(255)  NOT NULL,
-          price       DECIMAL(10,2) NOT NULL,
-          gender      ENUM('male','female','any') NOT NULL DEFAULT 'any',
-          rating      DECIMAL(2,1)  DEFAULT 4.0,
-          description TEXT,
-          image       VARCHAR(255)  DEFAULT 'images/default.jpg',
-          created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
+          id              INT AUTO_INCREMENT PRIMARY KEY,
+          owner_id        INT DEFAULT NULL,
+          name            VARCHAR(150)  NOT NULL,
+          city            VARCHAR(80)   NOT NULL,
+          address         VARCHAR(255)  NOT NULL,
+          price           DECIMAL(10,2) NOT NULL,
+          gender          ENUM('male','female','any') NOT NULL DEFAULT 'any',
+          rating          DECIMAL(2,1)  DEFAULT 4.0,
+          description     TEXT,
+          image           VARCHAR(255)  DEFAULT 'images/default.jpg',
+          total_rooms     INT DEFAULT 10,
+          available_rooms INT DEFAULT 5,
+          status          ENUM('pending','approved','rejected') NOT NULL DEFAULT 'approved',
+          contact_phone   VARCHAR(15)   DEFAULT NULL,
+          created_at      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB
     ");
     logMsg("✅ Table 'properties' ready.");
@@ -149,15 +155,37 @@ try {
         logMsg("ℹ️ Properties already seeded ($pcount rows).");
     }
 
-    // Step 7: Demo user
+    // Step 7: Demo student user
     $ucount = $pdo->query("SELECT COUNT(*) FROM users WHERE email='demo@pgfinder.com'")->fetchColumn();
     if ($ucount == 0) {
         $hash = password_hash('demo1234', PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (name,email,password,phone) VALUES (?,?,?,?)");
-        $stmt->execute(['Demo Student','demo@pgfinder.com',$hash,'9876543210']);
-        logMsg("✅ Demo user created (demo@pgfinder.com / demo1234).");
+        $stmt = $pdo->prepare("INSERT INTO users (name,email,password,phone,role) VALUES (?,?,?,?,?)");
+        $stmt->execute(['Demo Student','demo@pgfinder.com',$hash,'9876543210','student']);
+        logMsg("✅ Demo student created (demo@pgfinder.com / demo1234).");
     } else {
-        logMsg("ℹ️ Demo user already exists.");
+        logMsg("ℹ️ Demo student already exists.");
+    }
+
+    // Step 8: Demo admin user
+    $acount = $pdo->query("SELECT COUNT(*) FROM users WHERE email='admin@pgfinder.com'")->fetchColumn();
+    if ($acount == 0) {
+        $hash = password_hash('admin123', PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (name,email,password,phone,role) VALUES (?,?,?,?,?)");
+        $stmt->execute(['PGFinder Admin','admin@pgfinder.com',$hash,'9000000000','admin']);
+        logMsg("✅ Demo admin created (admin@pgfinder.com / admin123).");
+    } else {
+        logMsg("ℹ️ Demo admin already exists.");
+    }
+
+    // Step 9: Demo owner user
+    $ocount = $pdo->query("SELECT COUNT(*) FROM users WHERE email='owner@pgfinder.com'")->fetchColumn();
+    if ($ocount == 0) {
+        $hash = password_hash('owner123', PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (name,email,password,phone,role) VALUES (?,?,?,?,?)");
+        $stmt->execute(['Demo Owner','owner@pgfinder.com',$hash,'9111111111','owner']);
+        logMsg("✅ Demo owner created (owner@pgfinder.com / owner123).");
+    } else {
+        logMsg("ℹ️ Demo owner already exists.");
     }
 
     $success = true;
