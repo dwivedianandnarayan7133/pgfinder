@@ -4,12 +4,27 @@
  * Student Accommodation Platform
  */
 
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'student_accommodation');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: 'Shiv@241');
-define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
-define('BASE_URL', getenv('BASE_URL') ?: '/student-accommodation/');
+if (!function_exists('get_db_env')) {
+    function get_db_env(string $key, string $default): string {
+        if (getenv($key) !== false && getenv($key) !== '') {
+            return getenv($key);
+        }
+        if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
+            return $_ENV[$key];
+        }
+        if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
+            return $_SERVER[$key];
+        }
+        return $default;
+    }
+}
+
+define('DB_HOST', get_db_env('DB_HOST', 'localhost'));
+define('DB_NAME', get_db_env('DB_NAME', 'student_accommodation'));
+define('DB_USER', get_db_env('DB_USER', 'root'));
+define('DB_PASS', get_db_env('DB_PASS', 'Shiv@241'));
+define('DB_CHARSET', get_db_env('DB_CHARSET', 'utf8mb4'));
+define('BASE_URL', get_db_env('BASE_URL', '/student-accommodation/'));
 
 /**
  * Returns a PDO database connection (singleton).
